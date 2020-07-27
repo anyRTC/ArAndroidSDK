@@ -73,7 +73,6 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 
     private void initEngineAndJoinChannel() {
         initializeEngine();
-        setupVideoConfig();
         setupLocalVideo();
         joinChannel();
     }
@@ -86,14 +85,6 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
-    private void setupVideoConfig() {
-        mRtcEngine.enableVideo();
-        mRtcEngine.setVideoEncoderConfiguration(new VideoEncoderConfiguration(
-                VideoEncoderConfiguration.VD_640x360,
-                VideoEncoderConfiguration.FRAME_RATE.FRAME_RATE_FPS_15,
-                VideoEncoderConfiguration.STANDARD_BITRATE,
-                VideoEncoderConfiguration.ORIENTATION_MODE.ORIENTATION_MODE_FIXED_PORTRAIT));
-    }
 
     private void joinChannel() {
         mRtcEngine.joinChannel("", CHANNEL_NAME, "Extra Optional Data",userId );
@@ -122,12 +113,27 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mLogView.logI(uid+"加入频道");
                     setupRemoteVideo(uid);
+                    mLogView.logI(uid+"加入频道");
+
                 }
             });
         }
 
+
+
+        // SDK 接收到第一帧远端视频并成功解码时，会触发该回调。
+        // 可以在该回调中调用 setupRemoteVideo 方法设置远端视图。
+        @Override
+        public void onFirstRemoteVideoDecoded(String uid, int width, int height, int elapsed) {
+            super.onFirstRemoteVideoDecoded(uid, width, height, elapsed);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setupRemoteVideo(uid);
+                }
+            });
+        }
 
         @Override
         public void onUserOffline(final String uid, int reason) {
@@ -152,11 +158,15 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     };
 
     private void setupLocalVideo() {
+        //启用视频模块
+        mRtcEngine.enableVideo();
+        //创建TextureView对象
         TextureView mLocalView = RtcEngine.CreateRendererView(getBaseContext());
         if (rlLocal!=null){
             rlLocal.removeAllViews();
         }
         rlLocal.addView(mLocalView);
+        //设置本地视图
         mRtcEngine.setupLocalVideo(new VideoCanvas(mLocalView, VideoCanvas.RENDER_MODE_HIDDEN, userId));
     }
 
@@ -187,7 +197,6 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     }
     private void startCall() {
         initializeEngine();
-        setupVideoConfig();
         setupLocalVideo();
         joinChannel();
     }
