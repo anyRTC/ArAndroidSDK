@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_video_chat_view"
+    android:layout_width="match_parent"
+    android:background="#484258"
+    android:layout_height="match_parent"
+    >
+
+    <RelativeLayout
+        android:id="@+id/rl_remote_video"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_local_video"
+        android:layout_width="150dp"
+        android:layout_height="200dp"
+        android:layout_alignParentRight="true"
+        android:layout_margin="12dp"></RelativeLayout>
+
+
+
+    <ImageView
+        android:id="@+id/btn_switch_camera"
+        android:layout_width="wrap_content"
+        android:layout_gravity="center"
+        android:padding="12dp"
+        android:visibility="invisible"
+        android:layout_height="wrap_content"
+        android:src="@drawable/img_switch"
+        />
+    <ImageView
+        android:id="@+id/iv_logo"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_centerInParent="true"
+        android:src="@drawable/img_logo"/>
+
+    <org.ar.uikit.logger.LoggerRecyclerView
+        android:id="@+id/log_recycler_view"
+        android:layout_width="200dp"
+        android:padding="12dp"
+        android:layout_height="150dp"
+        android:layout_marginBottom="12dp"
+        android:layout_above="@+id/control_panel">
+    </org.ar.uikit.logger.LoggerRecyclerView>
+    <LinearLayout
+        android:id="@+id/control_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="24dp">
+
+
+
+        <ImageView
+            android:id="@+id/btn_audio_mute"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center"
+            android:visibility="invisible"
+            android:layout_weight="1"
+            android:src="@drawable/selector_audio_manager" />
+        <ImageView
+            android:id="@+id/btn_call"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:layout_height="60dp"
+            android:src="@drawable/img_leave"
+            />
+        <ImageView
+            android:id="@+id/btn_video_mute"
+            android:layout_width="0dp"
+            android:visibility="invisible"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:layout_height="wrap_content"
+            android:src="@drawable/selector_video_manager"
+            ></ImageView>
+
+
+    </LinearLayout>
+
+
+</RelativeLayout>

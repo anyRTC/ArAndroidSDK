@@ -1,0 +1,2 @@
+include ':app',':logger'
+rootProject.name = "AR-Android-Tutorial-1to1"
