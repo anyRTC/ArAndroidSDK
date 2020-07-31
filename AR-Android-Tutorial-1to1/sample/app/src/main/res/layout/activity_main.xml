@@ -18,6 +18,7 @@
         android:id="@+id/rl_local_video"
         android:layout_width="150dp"
         android:layout_height="200dp"
+        android:orientation="vertical"
         android:layout_alignParentRight="true"
         android:layout_margin="12dp"></RelativeLayout>
 

@@ -14,7 +14,9 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.TextureView;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -27,7 +29,8 @@ import org.ar.uikit.logger.LoggerRecyclerView;
 
 public class VideoActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private RelativeLayout rlLocal,rlRemote;
+    private RelativeLayout rlLocal;
+    private RelativeLayout rlRemote;
     private ImageView ivSwitch,ivMuteAudio,ivMuteVideo,ivCall;
     private LoggerRecyclerView mLogView;
     private String userId = String.valueOf((int) ((Math.random() * 9 + 1) * 100000));
@@ -79,7 +82,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 
     private void initializeEngine() {
         try {
-            mRtcEngine = RtcEngine.create(getBaseContext(), getResources().getString(R.string.rtm_app_id), mRtcEventHandler);
+            mRtcEngine = RtcEngine.create(getBaseContext(), getResources().getString(R.string.app_id), mRtcEventHandler);
         } catch (Exception e) {
             throw new RuntimeException("NEED TO check rtc sdk init fatal error\n" + Log.getStackTraceString(e));
         }
@@ -167,7 +170,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         }
         rlLocal.addView(mLocalView);
         //设置本地视图
-        mRtcEngine.setupLocalVideo(new VideoCanvas(mLocalView, VideoCanvas.RENDER_MODE_HIDDEN, userId));
+        mRtcEngine.setupLocalVideo(new VideoCanvas(mLocalView, VideoCanvas.RENDER_MODE_FIT, userId));
     }
 
 
