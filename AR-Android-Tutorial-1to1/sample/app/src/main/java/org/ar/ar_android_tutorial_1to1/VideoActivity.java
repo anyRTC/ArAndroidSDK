@@ -10,6 +10,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.TextureView;
@@ -83,6 +84,8 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     private void initializeEngine() {
         try {
             mRtcEngine = RtcEngine.create(getBaseContext(), getResources().getString(R.string.app_id), mRtcEventHandler);
+            //启用视频模块
+            mRtcEngine.enableVideo();
         } catch (Exception e) {
             throw new RuntimeException("NEED TO check rtc sdk init fatal error\n" + Log.getStackTraceString(e));
         }
@@ -94,7 +97,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void leaveChannel() {
-        RtcEngine.destroy();
+        mRtcEngine.leaveChannel();
     }
 
 
@@ -161,8 +164,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     };
 
     private void setupLocalVideo() {
-        //启用视频模块
-        mRtcEngine.enableVideo();
+
         //创建TextureView对象
         TextureView mLocalView = RtcEngine.CreateRendererView(getBaseContext());
         if (rlLocal!=null){
@@ -199,7 +201,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         }
     }
     private void startCall() {
-        initializeEngine();
+//        initializeEngine();
         setupLocalVideo();
         joinChannel();
     }
@@ -287,8 +289,18 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         if (keyCode==KeyEvent.KEYCODE_BACK){
             if (!mCallEnd){
                 endCall();
+                finish();
+                return true;
             }
+
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        RtcEngine.destroy();
     }
 }

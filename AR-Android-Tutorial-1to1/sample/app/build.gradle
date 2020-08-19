@@ -8,10 +8,12 @@ android {
         applicationId "org.ar.ar_android_tutorial_1to1"
         minSdkVersion 19
         targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.0.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+
     }
 
     buildTypes {
@@ -34,5 +36,5 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation project(path: ':logger')
-    implementation 'org.ar:rtc:4.0.0.8'
+    implementation 'org.ar:rtc:4.0.1.0'
 }
