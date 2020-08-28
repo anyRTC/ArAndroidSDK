@@ -35,7 +35,6 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     private ImageView ivSwitch,ivMuteAudio,ivMuteVideo,ivCall;
     private LoggerRecyclerView mLogView;
     private String userId = String.valueOf((int) ((Math.random() * 9 + 1) * 100000));
-    private String CHANNEL_NAME = "808080";
     private RtcEngine mRtcEngine;
     private boolean mCallEnd;
     private String remoteId= "";
@@ -93,7 +92,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 
 
     private void joinChannel() {
-        mRtcEngine.joinChannel("", CHANNEL_NAME, "Extra Optional Data",userId );
+        mRtcEngine.joinChannel("", getResources().getString(R.string.channel), "Extra Optional Data",userId );
     }
 
     private void leaveChannel() {
@@ -183,7 +182,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             remoteId = uid;
             TextureView mRemoteView = RtcEngine.CreateRendererView(getBaseContext());
             rlRemote.addView(mRemoteView);
-            mRtcEngine.setupRemoteVideo(new VideoCanvas(mRemoteView, Constants.RENDER_MODE_HIDDEN,CHANNEL_NAME, uid,Constants.VIDEO_MIRROR_MODE_DISABLED));
+            mRtcEngine.setupRemoteVideo(new VideoCanvas(mRemoteView, Constants.RENDER_MODE_HIDDEN,getResources().getString(R.string.channel), uid,Constants.VIDEO_MIRROR_MODE_DISABLED));
     }
 
 
@@ -201,7 +200,6 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         }
     }
     private void startCall() {
-//        initializeEngine();
         setupLocalVideo();
         joinChannel();
     }

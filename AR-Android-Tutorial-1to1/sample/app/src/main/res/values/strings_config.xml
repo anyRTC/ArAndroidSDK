@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string translatable="false" name="app_id"></string>
+    <string translatable="false" name="channel">808080</string>
 </resources>
