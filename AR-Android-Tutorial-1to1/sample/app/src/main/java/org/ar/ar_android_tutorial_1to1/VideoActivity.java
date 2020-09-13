@@ -24,7 +24,6 @@ import android.widget.Toast;
 import org.ar.rtc.Constants;
 import org.ar.rtc.IRtcEngineEventHandler;
 import org.ar.rtc.RtcEngine;
-import org.ar.rtc.VideoEncoderConfiguration;
 import org.ar.rtc.video.VideoCanvas;
 import org.ar.uikit.logger.LoggerRecyclerView;
 
