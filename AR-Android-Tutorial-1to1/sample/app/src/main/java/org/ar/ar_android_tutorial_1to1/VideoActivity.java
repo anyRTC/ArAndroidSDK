@@ -84,6 +84,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             mRtcEngine = RtcEngine.create(getBaseContext(), getResources().getString(R.string.app_id), mRtcEventHandler);
             //启用视频模块
             mRtcEngine.enableVideo();
+            mRtcEngine.setDefaultAudioRoutetoSpeakerphone(true);
         } catch (Exception e) {
             throw new RuntimeException("NEED TO check rtc sdk init fatal error\n" + Log.getStackTraceString(e));
         }
@@ -117,7 +118,6 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    setupRemoteVideo(uid);
                     mLogView.logI(uid+"加入频道");
 
                 }
