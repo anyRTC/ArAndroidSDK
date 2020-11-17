@@ -79,7 +79,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 
     private void initializeEngine() {
         try {
-            mRtcEngine = RtcEngine.create(getBaseContext(), getResources().getString(R.string.rtm_app_id), mRtcEventHandler);
+            mRtcEngine = RtcEngine.create(getBaseContext(), getResources().getString(R.string.rtc_app_id), mRtcEventHandler);
         } catch (Exception e) {
             throw new RuntimeException("NEED TO check rtc sdk init fatal error\n" + Log.getStackTraceString(e));
         }
