@@ -20,7 +20,7 @@ Demo演示了以下功能
 
 ```
 <resources>
-    <string translatable="false" name="app_id"/>
+    <string translatable="false" name="app_id">你的APPID</string>
 </resources>
 ```
 
