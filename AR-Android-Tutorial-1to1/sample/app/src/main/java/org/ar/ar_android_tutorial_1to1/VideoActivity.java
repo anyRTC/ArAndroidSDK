@@ -84,6 +84,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             mRtcEngine = RtcEngine.create(getBaseContext(), getResources().getString(R.string.app_id), mRtcEventHandler);
             //启用视频模块
             mRtcEngine.enableVideo();
+            mRtcEngine.startPreview();
         } catch (Exception e) {
             throw new RuntimeException("NEED TO check rtc sdk init fatal error\n" + Log.getStackTraceString(e));
         }
@@ -169,7 +170,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         }
         rlLocal.addView(mLocalView);
         //设置本地视图
-        mRtcEngine.setupLocalVideo(new VideoCanvas(mLocalView, VideoCanvas.RENDER_MODE_FIT, userId));
+        mRtcEngine.setupLocalVideo(new VideoCanvas(mLocalView, VideoCanvas.RENDER_MODE_HIDDEN, userId));
     }
 
 
