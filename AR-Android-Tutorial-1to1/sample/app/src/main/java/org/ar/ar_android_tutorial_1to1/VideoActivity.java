@@ -197,6 +197,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         if (rlLocal!=null){
             rlLocal.removeAllViews();
         }
+
     }
     private void startCall() {
         setupLocalVideo();
