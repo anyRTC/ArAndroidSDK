@@ -30,9 +30,9 @@ Demo演示了以下功能
 
 #### 集成SDK🔜
 
-你可以查看文档了解如何 [快速集成](https://docs.anyrtc.io/rtc-android/docs/quickstart)
+你可以查看文档了解如何 [快速集成](https://docs.anyrtc.io/cn/Video/run/video_setup/start_call_android)
 
-完整文档地址 👉 [API参考](https://docs.anyrtc.io/rtc-android/docs/android_overview)
+完整文档地址 👉 [API参考](https://docs.anyrtc.io/cn/Video/api-ref/rtc_android/android_overview)
 
 
 
