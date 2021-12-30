@@ -5,6 +5,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.databinding.DataBindingUtil;
+import androidx.databinding.ObservableField;
+import androidx.databinding.ObservableInt;
+import androidx.viewbinding.ViewBinding;
 
 import android.Manifest;
 import android.content.Intent;
@@ -21,23 +25,25 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import org.ar.ar_android_tutorial_1to1.databinding.ActivityMainBinding;
 import org.ar.rtc.Constants;
 import org.ar.rtc.IRtcEngineEventHandler;
 import org.ar.rtc.RtcEngine;
 import org.ar.rtc.video.VideoCanvas;
 import org.ar.uikit.logger.LoggerRecyclerView;
 
-public class VideoActivity extends AppCompatActivity implements View.OnClickListener {
+public class VideoActivity extends AppCompatActivity {
 
-    private RelativeLayout rlLocal;
-    private RelativeLayout rlRemote;
-    private ImageView ivSwitch,ivMuteAudio,ivMuteVideo,ivCall;
-    private LoggerRecyclerView mLogView;
     private String userId = String.valueOf((int) ((Math.random() * 9 + 1) * 100000));
     private RtcEngine mRtcEngine;
     private boolean mCallEnd;
-    private String remoteId= "";
-
+    private String remoteId = "";
+    ActivityMainBinding binding;
+    private LocalAVInfo localAVInfo = new LocalAVInfo();
+    private RemoteAVInfo remoteAVInfo = new RemoteAVInfo();
+    private long remoteJoinTime = 0;
+    private long audioStartSubTime = 0;
+    private long videoStartSubTime = 0;
     private static final int PERMISSION_REQ_ID = 22;
     private static final String[] REQUESTED_PERMISSIONS = {
             Manifest.permission.RECORD_AUDIO,
@@ -48,21 +54,38 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        mLogView = findViewById(R.id.log_recycler_view);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        binding.setLifecycleOwner(this);
+        binding.setMLocal(localAVInfo);
+        binding.setRemote(remoteAVInfo);
 
-        rlLocal = findViewById(R.id.rl_local_video);
-        rlRemote = findViewById(R.id.rl_remote_video);
+        if (getString(R.string.show_avInfo).equals("1")){
+            localAVInfo.showInfo.set(true);
+        }
 
-        ivSwitch = findViewById(R.id.btn_switch_camera);
-        ivCall = findViewById(R.id.btn_call);
-        ivMuteAudio = findViewById(R.id.btn_audio_mute);
-        ivMuteVideo = findViewById(R.id.btn_video_mute);
-
-        ivSwitch.setOnClickListener(this);
-        ivCall.setOnClickListener(this);
-        ivMuteAudio.setOnClickListener(this);
-        ivMuteVideo.setOnClickListener(this);
+        binding.btnCall.setOnClickListener(v -> {
+            if (mCallEnd) {
+                startCall();
+                mCallEnd = false;
+                binding.btnCall.setImageResource(R.drawable.img_leave);
+            } else {
+                endCall();
+                mCallEnd = true;
+                binding.btnCall.setImageResource(R.drawable.img_join);
+            }
+            showButtons(!mCallEnd);
+        });
+        binding.btnVideoMute.setOnClickListener(v -> {
+            binding.btnVideoMute.setSelected(!binding.btnVideoMute.isSelected());
+            mRtcEngine.muteLocalVideoStream(binding.btnVideoMute.isSelected());
+        });
+        binding.btnSwitchCamera.setOnClickListener(v -> {
+            mRtcEngine.switchCamera();
+        });
+        binding.btnAudioMute.setOnClickListener(v -> {
+            binding.btnAudioMute.setSelected(!binding.btnAudioMute.isSelected());
+            mRtcEngine.muteLocalAudioStream(binding.btnAudioMute.isSelected());
+        });
 
         if (checkSelfPermission(REQUESTED_PERMISSIONS[0], PERMISSION_REQ_ID) &&
                 checkSelfPermission(REQUESTED_PERMISSIONS[1], PERMISSION_REQ_ID) &&
@@ -82,6 +105,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
     private void initializeEngine() {
         try {
             mRtcEngine = RtcEngine.create(getBaseContext(), getResources().getString(R.string.app_id), mRtcEventHandler);
+            mRtcEngine.enableAudioVolumeIndication(2000,1,true);
             //启用视频模块
             mRtcEngine.enableVideo();
             mRtcEngine.startPreview();
@@ -92,7 +116,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 
 
     private void joinChannel() {
-        mRtcEngine.joinChannel("", getResources().getString(R.string.channel), "Extra Optional Data",userId );
+        mRtcEngine.joinChannel("", getResources().getString(R.string.channel), "Extra Optional Data", userId);
     }
 
     private void leaveChannel() {
@@ -106,7 +130,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mLogView.logI("加入频道成功");
+                    binding.logRecyclerView.logI("加入频道成功");
                     showButtons(true);
                 }
             });
@@ -118,13 +142,48 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mLogView.logI(uid+"加入频道");
-
+                    binding.logRecyclerView.logI(uid + "加入频道");
+                    remoteJoinTime = System.currentTimeMillis();
                 }
             });
         }
 
+        @Override
+        public void onLocalVideoStats(LocalVideoStats stats) {
+            super.onLocalVideoStats(stats);
+            runOnUiThread(() -> {
+                localAVInfo.videoBitrate.set(stats.sentBitrate);
+                localAVInfo.resolution.set(stats.encodedFrameHeight + "x" + stats.encodedFrameWidth);
+                localAVInfo.fps.set(stats.sentFrameRate);
+                localAVInfo.loss.set(stats.txPacketLossRate);
+            });
+        }
 
+        @Override
+        public void onLocalAudioStats(LocalAudioStats stats) {
+            super.onLocalAudioStats(stats);
+            runOnUiThread(() -> {
+                localAVInfo.audioBitrate.set(stats.sentBitrate);
+                localAVInfo.audioSampleRate.set(stats.sentSampleRate);
+                localAVInfo.audioChannel.set(stats.numChannels);
+
+            });
+        }
+
+        @Override
+        public void onAudioVolumeIndication(AudioVolumeInfo[] speakers, int totalVolume) {
+            super.onAudioVolumeIndication(speakers, totalVolume);
+            runOnUiThread(() -> {
+                for (AudioVolumeInfo info : speakers
+                ) {
+                    if (info.uid.equals("0")) {
+                        localAVInfo.audioVol.set(info.volume);
+                    }else if (info.uid.equals(remoteId)){
+                        remoteAVInfo.audioVol.set(info.volume);
+                    }
+                }
+            });
+        }
 
         // SDK 接收到第一帧远端视频并成功解码时，会触发该回调。
         // 可以在该回调中调用 setupRemoteVideo 方法设置远端视图。
@@ -140,11 +199,59 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
         }
 
         @Override
+        public void onRemoteVideoStats(RemoteVideoStats stats) {
+            super.onRemoteVideoStats(stats);
+            runOnUiThread(()->{
+                remoteAVInfo.videoBitrate.set(stats.receivedBitrate);
+                remoteAVInfo.fps.set(stats.decoderOutputFrameRate);
+                remoteAVInfo.loss.set(stats.packetLossRate);
+                remoteAVInfo.resolution.set(stats.height+"x"+stats.width);
+            });
+
+        }
+
+        @Override
+        public void onRemoteAudioStats(RemoteAudioStats stats) {
+            super.onRemoteAudioStats(stats);
+            runOnUiThread(()->{
+                remoteAVInfo.audioBitrate.set(stats.receivedBitrate);
+                remoteAVInfo.audioSampleRate.set(stats.receivedSampleRate);
+                remoteAVInfo.audioChannel.set(stats.numChannels);
+            });
+        }
+
+        @Override
+        public void onAudioSubscribeStateChanged(String channel, String uid, int oldState, int newState, int elapseSinceLastState) {
+            super.onAudioSubscribeStateChanged(channel, uid, oldState, newState, elapseSinceLastState);
+            runOnUiThread(() -> {
+                if (newState==2){//正在订阅
+                    audioStartSubTime = System.currentTimeMillis();
+                    remoteAVInfo.onlineToSubAudioTime.set(audioStartSubTime-remoteJoinTime);
+                }else if (newState ==3){
+                    remoteAVInfo.subAudioToSubSuccessTime.set(System.currentTimeMillis()-audioStartSubTime);
+                }
+            });
+        }
+
+        @Override
+        public void onVideoSubscribeStateChanged(String channel, String uid, int oldState, int newState, int elapseSinceLastState) {
+            super.onVideoSubscribeStateChanged(channel, uid, oldState, newState, elapseSinceLastState);
+            runOnUiThread(() -> {
+                if (newState==2){//正在订阅
+                    videoStartSubTime = System.currentTimeMillis();
+                    remoteAVInfo.onlineToSubVideoTime.set(videoStartSubTime-remoteJoinTime);
+                }else if (newState ==3){
+                    remoteAVInfo.subVideoToSubSuccessTime.set(System.currentTimeMillis()-videoStartSubTime);
+                }
+            });
+        }
+
+        @Override
         public void onUserOffline(final String uid, int reason) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mLogView.logI(uid+"离开频道");
+                    binding.logRecyclerView.logI(uid + "离开频道");
                     removeRemoteVideo(uid);
                 }
             });
@@ -155,7 +262,7 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mLogView.logI("onError"+err);
+                    binding.logRecyclerView.logI("onError" + err);
                 }
             });
         }
@@ -165,40 +272,46 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 
         //创建TextureView对象
         TextureView mLocalView = RtcEngine.CreateRendererView(getBaseContext());
-        if (rlLocal!=null){
-            rlLocal.removeAllViews();
+        if (binding.rlLocalVideo != null) {
+            binding.rlLocalVideo.removeAllViews();
         }
-        rlLocal.addView(mLocalView);
+        binding.rlLocalVideo.addView(mLocalView);
         //设置本地视图
         mRtcEngine.setupLocalVideo(new VideoCanvas(mLocalView, VideoCanvas.RENDER_MODE_HIDDEN, userId));
     }
 
 
     private void setupRemoteVideo(String uid) {
-            if (rlRemote!=null){
-                rlRemote.removeAllViews();
-            }
-            remoteId = uid;
-            TextureView mRemoteView = RtcEngine.CreateRendererView(getBaseContext());
-            rlRemote.addView(mRemoteView);
-            mRtcEngine.setupRemoteVideo(new VideoCanvas(mRemoteView, Constants.RENDER_MODE_HIDDEN,getResources().getString(R.string.channel), uid,Constants.VIDEO_MIRROR_MODE_DISABLED));
+        if (binding.rlRemoteVideo != null) {
+            binding.rlRemoteVideo.removeAllViews();
+        }
+        remoteId = uid;
+        TextureView mRemoteView = RtcEngine.CreateRendererView(getBaseContext());
+        binding.rlRemoteVideo.addView(mRemoteView);
+        mRtcEngine.setupRemoteVideo(new VideoCanvas(mRemoteView, Constants.RENDER_MODE_HIDDEN, getResources().getString(R.string.channel), uid, Constants.VIDEO_MIRROR_MODE_DISABLED));
     }
 
 
     private void removeRemoteVideo(String uid) {
-        if (rlRemote!=null){
+        if (binding.rlRemoteVideo != null) {
             if (remoteId.equals(uid)) {
-                rlRemote.removeAllViews();
+                binding.rlRemoteVideo.removeAllViews();
+                remoteAVInfo.reset();
+                remoteJoinTime = 0;
+                videoStartSubTime=0;
+                audioStartSubTime=0;
             }
         }
     }
 
     private void removeLocalVideo() {
-        if (rlLocal!=null){
-            rlLocal.removeAllViews();
+        if (binding.rlLocalVideo != null) {
+            binding.rlLocalVideo.removeAllViews();
+            localAVInfo.reset();
         }
 
     }
+
     private void startCall() {
         setupLocalVideo();
         joinChannel();
@@ -212,41 +325,11 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 
     private void showButtons(boolean show) {
         int visibility = show ? View.VISIBLE : View.GONE;
-        ivMuteVideo.setVisibility(visibility);
-        ivSwitch.setVisibility(visibility);
-        ivMuteAudio.setVisibility(visibility);
+        binding.btnVideoMute.setVisibility(visibility);
+        binding.btnSwitchCamera.setVisibility(visibility);
+        binding.btnAudioMute.setVisibility(visibility);
     }
 
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()){
-            case R.id.btn_audio_mute:
-                ivMuteAudio.setSelected(!ivMuteAudio.isSelected());
-                mRtcEngine.muteLocalAudioStream(ivMuteAudio.isSelected());
-                break;
-            case R.id.btn_video_mute:
-                ivMuteVideo.setSelected(!ivMuteVideo.isSelected());
-                mRtcEngine.muteLocalVideoStream(ivMuteVideo.isSelected());
-                break;
-            case R.id.btn_call:
-                if (mCallEnd) {
-                    startCall();
-                    mCallEnd = false;
-                    ivCall.setImageResource(R.drawable.img_leave);
-                } else {
-                    endCall();
-                    mCallEnd = true;
-                    ivCall.setImageResource(R.drawable.img_join);
-                }
-                showButtons(!mCallEnd);
-                break;
-            case R.id.btn_switch_camera:
-                mRtcEngine.switchCamera();
-                break;
-        }
-
-    }
 
     private boolean checkSelfPermission(String permission, int requestCode) {
         if (ContextCompat.checkSelfPermission(this, permission) !=
@@ -284,8 +367,8 @@ public class VideoActivity extends AppCompatActivity implements View.OnClickList
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode==KeyEvent.KEYCODE_BACK){
-            if (!mCallEnd){
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (!mCallEnd) {
                 endCall();
                 finish();
                 return true;

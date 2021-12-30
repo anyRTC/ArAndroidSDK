@@ -1,92 +1,261 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_video_chat_view"
-    android:layout_width="match_parent"
-    android:background="#484258"
-    android:layout_height="match_parent"
-    >
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="org.ar.ar_android_tutorial_1to1.LocalAVInfo"></import>
+        <import type="org.ar.ar_android_tutorial_1to1.RemoteAVInfo"></import>
+        <import type="android.view.View"/>
+        <variable
+            name="mLocal"
+            type="LocalAVInfo" />
+
+        <variable
+            name="remote"
+            type="RemoteAVInfo" />
+
+
+    </data>
 
     <RelativeLayout
-        android:id="@+id/rl_remote_video"
-        android:orientation="vertical"
+        android:id="@+id/activity_video_chat_view"
         android:layout_width="match_parent"
+        android:background="#484258"
         android:layout_height="match_parent">
-    </RelativeLayout>
 
-    <RelativeLayout
-        android:id="@+id/rl_local_video"
-        android:layout_width="150dp"
-        android:layout_height="200dp"
-        android:orientation="vertical"
-        android:layout_alignParentRight="true"
-        android:layout_margin="12dp"></RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/rl_remote_video"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
+        </RelativeLayout>
 
-
-    <ImageView
-        android:id="@+id/btn_switch_camera"
-        android:layout_width="wrap_content"
-        android:layout_gravity="center"
-        android:padding="12dp"
-        android:visibility="invisible"
-        android:layout_height="wrap_content"
-        android:src="@drawable/img_switch"
-        />
-    <ImageView
-        android:id="@+id/iv_logo"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_centerInParent="true"
-        android:src="@drawable/img_logo"/>
-
-    <org.ar.uikit.logger.LoggerRecyclerView
-        android:id="@+id/log_recycler_view"
-        android:layout_width="200dp"
-        android:padding="12dp"
-        android:layout_height="150dp"
-        android:layout_marginBottom="12dp"
-        android:layout_above="@+id/control_panel">
-    </org.ar.uikit.logger.LoggerRecyclerView>
-    <LinearLayout
-        android:id="@+id/control_panel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="24dp">
-
-
-
-        <ImageView
-            android:id="@+id/btn_audio_mute"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:visibility="@{mLocal.showInfo ? View.VISIBLE : View.GONE}"
             android:layout_height="wrap_content"
+            android:layout_width="match_parent"
             android:layout_centerVertical="true"
-            android:layout_gravity="center"
-            android:visibility="invisible"
-            android:layout_weight="1"
-            android:src="@drawable/selector_audio_manager" />
+            android:layout_marginBottom="12dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="40dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="@{`加入到音频订阅时间：`+remote.onlineToSubAudioTime+`ms`}"
+                android:textColor="@android:color/holo_orange_dark"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="@{`音频订阅到成功时间：`+remote.subAudioToSubSuccessTime+`ms`}"
+                android:textColor="@android:color/holo_orange_dark"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="@{`加入到视频订阅时间：`+remote.onlineToSubVideoTime+`ms`}"
+                android:textColor="@android:color/holo_orange_dark"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="@{`视频订阅到成功时间：`+remote.subVideoToSubSuccessTime+`ms`}"
+                android:textColor="@android:color/holo_orange_dark"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="@{`音频码率：`+remote.audioBitrate+` kbps`}"
+                android:textColor="@android:color/holo_orange_dark"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="@{`音频采样率：`+remote.audioSampleRate+` KHZ`}"
+                android:textColor="@android:color/holo_orange_dark"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="@{`声道数：`+remote.audioChannel}"
+                android:textColor="@android:color/holo_orange_dark"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="@{`音量大小：`+remote.audioVol}"
+                android:textColor="@android:color/holo_orange_dark"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="@{`视频帧率：`+remote.fps}"
+                android:layout_weight="1"
+                android:textColor="@android:color/holo_orange_dark"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="@{`视频分辨率：`+remote.resolution}"
+                android:textColor="@android:color/holo_orange_dark"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="@{`视频码率：`+remote.videoBitrate+`kbps`}"
+                android:textColor="@android:color/holo_orange_dark"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="@{`丢包率：`+remote.loss+`%`}"
+                android:textColor="@android:color/holo_orange_dark"/>
+        </LinearLayout>
+
+
+
+
+        <RelativeLayout
+            android:id="@+id/rl_local_video"
+            android:layout_width="150dp"
+            android:layout_height="200dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="12dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="12dp"
+            android:orientation="vertical"></RelativeLayout>
+
+        <LinearLayout
+            android:visibility="@{mLocal.showInfo ? View.VISIBLE : View.GONE}"
+            android:layout_width="150dp"
+            android:layout_height="200dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="12dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="12dp"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="@{`音频码率：`+mLocal.audioBitrate}"
+                android:textColor="@android:color/holo_orange_dark"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="@{`音频采样率：`+mLocal.audioSampleRate}"
+                android:textColor="@android:color/holo_orange_dark"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="@{`声道数：`+mLocal.audioChannel}"
+                android:textColor="@android:color/holo_orange_dark"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="@{`音量大小：`+mLocal.audioVol}"
+                android:textColor="@android:color/holo_orange_dark"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="@{`视频帧率：`+mLocal.fps}"
+                android:layout_weight="1"
+                android:textColor="@android:color/holo_orange_dark"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="@{`视频分辨率：`+mLocal.resolution}"
+                android:textColor="@android:color/holo_orange_dark"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="@{`视频码率：`+mLocal.videoBitrate+` kbps`}"
+                android:textColor="@android:color/holo_orange_dark"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="@{`丢包率：`+mLocal.loss+`%`}"
+                android:textColor="@android:color/holo_orange_dark"/>
+        </LinearLayout>
+
+
         <ImageView
-            android:id="@+id/btn_call"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+            android:id="@+id/btn_switch_camera"
+            android:layout_width="wrap_content"
             android:layout_gravity="center"
-            android:layout_height="60dp"
-            android:src="@drawable/img_leave"
-            />
-        <ImageView
-            android:id="@+id/btn_video_mute"
-            android:layout_width="0dp"
+            android:padding="12dp"
             android:visibility="invisible"
-            android:layout_weight="1"
-            android:layout_gravity="center"
             android:layout_height="wrap_content"
-            android:src="@drawable/selector_video_manager"
-            ></ImageView>
+            android:src="@drawable/img_switch" />
+
+        <ImageView
+            android:id="@+id/iv_logo"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_centerInParent="true"
+            android:src="@drawable/img_logo" />
+
+        <org.ar.uikit.logger.LoggerRecyclerView
+            android:id="@+id/log_recycler_view"
+            android:layout_width="200dp"
+            android:padding="12dp"
+            android:layout_height="150dp"
+            android:layout_marginBottom="12dp"
+            android:layout_above="@+id/control_panel"></org.ar.uikit.logger.LoggerRecyclerView>
+
+        <LinearLayout
+            android:id="@+id/control_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="24dp">
 
 
-    </LinearLayout>
+            <ImageView
+                android:id="@+id/btn_audio_mute"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_gravity="center"
+                android:visibility="invisible"
+                android:layout_weight="1"
+                android:src="@drawable/selector_audio_manager" />
+
+            <ImageView
+                android:id="@+id/btn_call"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_gravity="center"
+                android:layout_height="60dp"
+                android:src="@drawable/img_leave" />
+
+            <ImageView
+                android:id="@+id/btn_video_mute"
+                android:layout_width="0dp"
+                android:visibility="invisible"
+                android:layout_weight="1"
+                android:layout_gravity="center"
+                android:layout_height="wrap_content"
+                android:src="@drawable/selector_video_manager"></ImageView>
 
 
-</RelativeLayout>
+        </LinearLayout>
+
+
+    </RelativeLayout>
+</layout>
