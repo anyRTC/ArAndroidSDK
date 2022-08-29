@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string translatable="false" name="app_id">YOUR APPID</string>
+    <string translatable="false" name="app_id">APPID</string>
     <string name="show_avInfo">0</string>
     <string translatable="false" name="channel">808080</string>
 </resources>

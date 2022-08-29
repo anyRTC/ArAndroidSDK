@@ -26,6 +26,10 @@ Demo演示了以下功能
 
 4. 开始运行即可
 
+#### 显示音视频统计信息🔜
+
+1. 打开 values/strings_config.xml，将show_avInfo 改为 1
+
 
 
 #### 集成SDK🔜

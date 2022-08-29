@@ -59,6 +59,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
+                android:text="@{`音频订阅到首帧时间：`+remote.subAudioSuccessToFirstFrameTime+`ms`}"
+                android:textColor="@android:color/holo_orange_dark"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 android:text="@{`加入到视频订阅时间：`+remote.onlineToSubVideoTime+`ms`}"
                 android:textColor="@android:color/holo_orange_dark"/>
             <TextView
@@ -66,6 +73,12 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:text="@{`视频订阅到成功时间：`+remote.subVideoToSubSuccessTime+`ms`}"
+                android:textColor="@android:color/holo_orange_dark"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="@{`视频订阅成功到首帧时间：`+remote.subVideoSuccessToFirstFrameTime+`ms`}"
                 android:textColor="@android:color/holo_orange_dark"/>
 
             <TextView

@@ -29,8 +29,16 @@ import org.ar.ar_android_tutorial_1to1.databinding.ActivityMainBinding;
 import org.ar.rtc.Constants;
 import org.ar.rtc.IRtcEngineEventHandler;
 import org.ar.rtc.RtcEngine;
+import org.ar.rtc.VideoEncoderConfiguration;
 import org.ar.rtc.video.VideoCanvas;
 import org.ar.uikit.logger.LoggerRecyclerView;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.webrtc.TextureViewRenderer;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class VideoActivity extends AppCompatActivity {
 
@@ -44,12 +52,15 @@ public class VideoActivity extends AppCompatActivity {
     private long remoteJoinTime = 0;
     private long audioStartSubTime = 0;
     private long videoStartSubTime = 0;
+    private long audioSubSuccessTime = 0;
+    private long videoSubSuccessTime = 0;
     private static final int PERMISSION_REQ_ID = 22;
     private static final String[] REQUESTED_PERMISSIONS = {
             Manifest.permission.RECORD_AUDIO,
             Manifest.permission.CAMERA,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
+    private HashMap<String,TextureView> renderers = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,10 +116,18 @@ public class VideoActivity extends AppCompatActivity {
     private void initializeEngine() {
         try {
             mRtcEngine = RtcEngine.create(getBaseContext(), getResources().getString(R.string.app_id), mRtcEventHandler);
-            mRtcEngine.enableAudioVolumeIndication(2000,1,true);
             //启用视频模块
             mRtcEngine.enableVideo();
             mRtcEngine.startPreview();
+            JSONObject json =new JSONObject();
+            try {
+                json.put("Cmd","ConfPriCloudAddr");
+                json.put("ServerAdd","0000");
+                json.put("Port",6080);
+//                mRtcEngine.setParameters(json.toString());//私有云设置
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         } catch (Exception e) {
             throw new RuntimeException("NEED TO check rtc sdk init fatal error\n" + Log.getStackTraceString(e));
         }
@@ -143,6 +162,9 @@ public class VideoActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     binding.logRecyclerView.logI(uid + "加入频道");
+                    remoteJoinTime = 0;
+                    audioStartSubTime = 0;
+                    videoStartSubTime = 0;
                     remoteJoinTime = System.currentTimeMillis();
                 }
             });
@@ -193,7 +215,19 @@ public class VideoActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    remoteAVInfo.subVideoSuccessToFirstFrameTime.set(System.currentTimeMillis()-videoSubSuccessTime);
                     setupRemoteVideo(uid);
+                }
+            });
+        }
+
+        @Override
+        public void onFirstRemoteAudioDecoded(String uid, int elapsed) {
+            super.onFirstRemoteAudioDecoded(uid, elapsed);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    remoteAVInfo.subAudioSuccessToFirstFrameTime.set(System.currentTimeMillis()-audioSubSuccessTime);
                 }
             });
         }
@@ -229,6 +263,7 @@ public class VideoActivity extends AppCompatActivity {
                     remoteAVInfo.onlineToSubAudioTime.set(audioStartSubTime-remoteJoinTime);
                 }else if (newState ==3){
                     remoteAVInfo.subAudioToSubSuccessTime.set(System.currentTimeMillis()-audioStartSubTime);
+                    audioSubSuccessTime = System.currentTimeMillis();
                 }
             });
         }
@@ -242,6 +277,7 @@ public class VideoActivity extends AppCompatActivity {
                     remoteAVInfo.onlineToSubVideoTime.set(videoStartSubTime-remoteJoinTime);
                 }else if (newState ==3){
                     remoteAVInfo.subVideoToSubSuccessTime.set(System.currentTimeMillis()-videoStartSubTime);
+                    videoSubSuccessTime = System.currentTimeMillis();
                 }
             });
         }
@@ -276,6 +312,7 @@ public class VideoActivity extends AppCompatActivity {
             binding.rlLocalVideo.removeAllViews();
         }
         binding.rlLocalVideo.addView(mLocalView);
+        renderers.put("local",mLocalView);
         //设置本地视图
         mRtcEngine.setupLocalVideo(new VideoCanvas(mLocalView, VideoCanvas.RENDER_MODE_HIDDEN, userId));
     }
@@ -288,18 +325,22 @@ public class VideoActivity extends AppCompatActivity {
         remoteId = uid;
         TextureView mRemoteView = RtcEngine.CreateRendererView(getBaseContext());
         binding.rlRemoteVideo.addView(mRemoteView);
+        renderers.put(uid, mRemoteView);
         mRtcEngine.setupRemoteVideo(new VideoCanvas(mRemoteView, Constants.RENDER_MODE_HIDDEN, getResources().getString(R.string.channel), uid, Constants.VIDEO_MIRROR_MODE_DISABLED));
     }
 
 
     private void removeRemoteVideo(String uid) {
         if (binding.rlRemoteVideo != null) {
-            if (remoteId.equals(uid)) {
+            if (renderers.containsKey(uid)) {
                 binding.rlRemoteVideo.removeAllViews();
+                ((TextureViewRenderer)renderers.get(uid)).release();
                 remoteAVInfo.reset();
                 remoteJoinTime = 0;
                 videoStartSubTime=0;
                 audioStartSubTime=0;
+                audioSubSuccessTime = 0;
+                videoSubSuccessTime = 0;
             }
         }
     }
@@ -307,6 +348,9 @@ public class VideoActivity extends AppCompatActivity {
     private void removeLocalVideo() {
         if (binding.rlLocalVideo != null) {
             binding.rlLocalVideo.removeAllViews();
+            if (renderers.containsKey("local")){
+                ((TextureViewRenderer)renderers.get("local")).release();
+            }
             localAVInfo.reset();
         }
 

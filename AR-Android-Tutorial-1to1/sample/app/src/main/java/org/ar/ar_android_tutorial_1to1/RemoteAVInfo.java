@@ -9,6 +9,8 @@ public class RemoteAVInfo {
     public ObservableLong subAudioToSubSuccessTime;
     public ObservableLong onlineToSubVideoTime;
     public ObservableLong subVideoToSubSuccessTime;
+    public ObservableLong subVideoSuccessToFirstFrameTime;
+    public ObservableLong subAudioSuccessToFirstFrameTime;
 
     public ObservableInt audioBitrate;
     public ObservableInt audioSampleRate;
@@ -33,6 +35,8 @@ public class RemoteAVInfo {
         this.subAudioToSubSuccessTime = new ObservableLong(0);
         this.onlineToSubVideoTime = new ObservableLong(0);
         this.subVideoToSubSuccessTime = new ObservableLong(0);
+        this.subVideoSuccessToFirstFrameTime = new ObservableLong(0);
+        this.subAudioSuccessToFirstFrameTime = new ObservableLong(0);
     }
 
     public void reset(){
@@ -47,6 +51,8 @@ public class RemoteAVInfo {
         fps.set(0);
         videoBitrate.set(0);
         resolution.set("");
+        subVideoSuccessToFirstFrameTime.set(0);
+        subAudioSuccessToFirstFrameTime.set(0);
         loss.set(0);
     }
 }
