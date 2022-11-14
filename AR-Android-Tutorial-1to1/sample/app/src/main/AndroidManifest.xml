@@ -23,6 +23,7 @@
         <activity
             android:name=".VideoActivity"
             android:screenOrientation="portrait"
+            android:exported="true"
             android:theme="@style/FullScreenVideoTheme" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

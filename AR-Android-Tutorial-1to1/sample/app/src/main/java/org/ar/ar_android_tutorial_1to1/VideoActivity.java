@@ -122,7 +122,7 @@ public class VideoActivity extends AppCompatActivity {
             JSONObject json =new JSONObject();
             try {
                 json.put("Cmd","ConfPriCloudAddr");
-                json.put("ServerAdd","0000");
+                json.put("ServerAdd","0.0.0.0");
                 json.put("Port",6080);
 //                mRtcEngine.setParameters(json.toString());//私有云设置
             } catch (JSONException e) {
